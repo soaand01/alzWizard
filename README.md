@@ -105,8 +105,4 @@ gh repo create soaand01/alzWizard --public --source=. --remote=origin --push
 - Add a GitHub Actions workflow to run linters and smoke tests on push/PR.
 
 
-📜 License
-
-Add a `LICENSE` file (MIT recommended) if you plan to open-source this repository publicly.
-
-If you'd like any of the recommended improvements implemented now, tell me which one and I'll apply it and push the change.
+ 
