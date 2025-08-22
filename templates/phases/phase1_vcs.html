@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% block content %}{% include 'navmenu.html' %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card w-100 shadow-lg" style="max-width: 700px;">
+        <div class="card-body position-relative">
+            <h3 class="card-title mb-3">Phase 1 — Version Control Systems</h3>
+            <p class="lead mb-4">Select and configure your version control provider for bootstrap and CI/CD.</p>
+
+            <p><strong>Purpose:</strong> Provide the minimal VCS configuration and tokens the accelerator requires to create repositories, push code, and run pipelines or workflows.</p>
+
+            <h5 class="mt-3">Before you start</h5>
+            <ul>
+                <li><strong>Organization access:</strong> Confirm you have an Organization account for GitHub or an Organization in Azure DevOps with sufficient permissions.</li>
+                <li><strong>Secret storage:</strong> Decide where tokens/secrets will be stored (Azure Key Vault, repository secrets, or CI secret store).</li>
+            </ul>
+
+            <div class="mb-4">
+                <div class="mb-3">
+                    <label for="vcsType" class="form-label">Select your Version Control System</label>
+                    <select id="vcsType" class="form-select" style="max-width:360px;">
+                        <option value="" selected disabled>-- select --</option>
+                        <option value="azuredevops">Azure DevOps</option>
+                        <option value="github">GitHub</option>
+                        <option value="local">Local / Other</option>
+                    </select>
+                </div>
+
+                <!-- VCS instruction panels -->
+                <div id="vcsAzureDevOps" class="mt-3" style="display:none;">
+                    <div class="border rounded p-3 mb-3 bg-body-tertiary">
+                        <h5 class="mb-2">Azure DevOps — prerequisites &amp; PATs</h5>
+                        <p class="mb-2">Create Personal Access Tokens (PATs) and an Azure Resource Manager service connection so pipelines can push code and run bootstrap jobs.</p>
+
+                        <h6 class="mb-1">Before you start</h6>
+                        <ul class="mb-2">
+                            <li>Confirm the Azure DevOps organization exists and you have permissions to create PATs and service connections.</li>
+                            <li>Decide between Microsoft-hosted and self-hosted agents (self-hosted requires an additional PAT for agent pools).</li>
+                        </ul>
+
+                        <h6 class="mb-1">Create a PAT for pipelines</h6>
+                        <ol class="mb-2">
+                            <li>Sign in to <a href="https://dev.azure.com/">dev.azure.com</a> and open the organization.</li>
+                            <li>User menu → <strong>Personal access tokens</strong> → <strong>+ New Token</strong>.</li>
+                            <li>Name the token (example: <em>ALZ Accelerator - pipelines</em>), set a short expiration, and plan a rotation schedule.</li>
+                            <li>Click <strong>Show all scopes</strong> and enable the minimal scopes required by the accelerator.</li>
+                        </ol>
+                        <ul class="mb-2">
+                            <li><strong>Agent Pools</strong>: Read &amp; manage</li>
+                            <li><strong>Build</strong>: Read &amp; execute</li>
+                            <li><strong>Code</strong>: Read or Full (required to push repository changes)</li>
+                            <li><strong>Environment</strong>: Read &amp; manage</li>
+                            <li><strong>Graph</strong>: Read &amp; manage</li>
+                            <li><strong>Pipeline</strong> / Pipeline Resources: Use &amp; manage</li>
+                            <li><strong>Project and Team</strong>: Read, write &amp; manage</li>
+                            <li><strong>Service Connections</strong>: Read &amp; manage</li>
+                            <li><strong>Variable Groups</strong>: Read, create &amp; manage</li>
+                        </ul>
+                        <p class="mb-2"><strong>Create and store the token securely</strong> (Azure Key Vault or pipeline secret store). For self-hosted agents <strong>create a second PAT</strong> with Agent Pools scope and a longer expiration.</p>
+
+                        <h6 class="mb-1">Verify your PAT</h6>
+                        <ul>
+                            <li>Create a lightweight pipeline that checks out the repository and performs a non-destructive action (for example, list files) using the PAT to confirm repository access.</li>
+                            <li>If your pipelines will push branches or create repositories, create a pipeline run that attempts a test push to validate PAT write permissions.</li>
+                        </ul>
+
+                        <p class="small text-muted mb-0">Helpful links: <a href="https://learn.microsoft.com/azure/devops/pipelines/library/service-endpoints?view=azure-devops">Service connections</a>, <a href="https://learn.microsoft.com/azure/devops/organizations/accounts/manage-personal-access-tokens-via-the-rest-api?view=azure-devops">PAT guidance</a>.</p>
+                    </div>
+                </div>
+
+                                <div id="vcsGitHub" class="mt-3" style="display:none;">
+                                    <div class="border rounded p-3 mb-3 bg-body-tertiary">
+                                        <h5 class="mb-2">GitHub — organization, tokens, and repository setup</h5>
+
+                                        <p class="mb-2">Short, practical steps to create and store a token for the accelerator and prepare the target repository.</p>
+
+                                        <h6 class="mb-1">Create a token</h6>
+                                        <p class="mb-1">Purpose: create a token the accelerator can use to create branches, push code, and run CI workflows.</p>
+                                        <ol class="mb-2">
+                                            <li>Sign in to <a href="https://github.com">github.com</a> and switch to the Organization context.</li>
+                                            <li>Open <strong>Settings → Developer settings → Personal access tokens</strong> and choose either:
+                                                <ul>
+                                                    <li><strong>Tokens (classic)</strong> — broader compatibility; grant minimal scopes.</li>
+                                                        <li><strong>Fine-grained token</strong> — <strong>preferred</strong>; scope to required repos and permissions.</li>
+                                                </ul>
+                                            </li>
+                                            <li>Name the token (example: <em>alz-accelerator</em>), set a short expiration, and plan regular rotation.</li>
+                                            <li>Grant permissions (classic token example):
+                                                <ul>
+                                                    <li><code>repo</code></li>
+                                                    <li><code>workflow</code></li>
+                                                    <li><code>admin:org</code></li>
+                                                    <li><code>delete_repo</code></li>
+                                                    <li><code>user:read:user</code> (read basic user profile)</li>
+                                                    <li><code>user:email</code> (read user email addresses)</li>
+                                                </ul>
+                                                For fine-grained tokens, scope permissions to only the required repositories and actions instead of using broad classic scopes.
+                                            </li>
+                                            <li><strong>Save the token to the Organization secrets store</strong> and authorize it for SSO if your organization requires SSO.</li>
+                                        </ol>
+
+                                        <p class="mb-2"><strong>Self-hosted runners:</strong> if you use self-hosted runners, create a second PAT (token-2) with <em>No expiration</em> or a longer expiration and the specific scopes required for agent management. Scope guidance:
+                                        <ul>
+                                            <li>Free organization: token-2 may only need <code>repo</code>.</li>
+                                            <li>Enterprise organization with runner groups: use <code>admin:org</code> for classic tokens or <code>organization_self_hosted_runners:write</code> for fine-grained tokens.</li>
+                                        </ul>
+                                        </p>
+
+                                        <p class="mb-2"><strong>Free organization note:</strong> a free GitHub Organization may create public repositories during bootstrap; this is necessary for some accelerator features and is not recommended for production.</p>
+
+                                        <h6 class="mb-1">Organization & repository setup</h6>
+                                        <p class="mb-1">Prepare the repo so the accelerator can operate safely and with the correct permissions.</p>
+                                        <ol class="mb-2">
+                                            <li>Create the target repository inside the Organization.</li>
+                                            <li>Configure branch protection, required reviewers, and any required status checks.</li>
+                                            <li>Confirm the stored token/secret has permissions to create branches, push code, and manage Actions workflows for that repository.</li>
+                                            <li>If the accelerator must authenticate to Azure from Actions, store the service principal JSON (the <code>--sdk-auth</code> output) as an Organization secret (example name: <code>AZURE_CREDENTIALS</code>).</li>
+                                        </ol>
+
+                                        <h6 class="mb-1">Best practices</h6>
+                                        <ul class="mb-2">
+                                            <li>Prefer fine-grained tokens and least-privilege access.</li>
+                                            <li>Keep secrets in Organization-level secrets or a central secret manager (Azure Key Vault).</li>
+                                            <li>Use short expirations, rotate tokens regularly, and audit token usage.</li>
+                                            <li>Never store tokens or credentials in source code.</li>
+                                        </ul>
+
+                                        <h6 class="mb-1">Quick verification checklist</h6>
+                                        <ul>
+                                            <li>Token exists in Organization secrets and is authorized for SSO if needed.</li>
+                                            <li>Token/secret can create a branch and push to the target repository (test on a throwaway branch).</li>
+                                            <li>If Azure authentication is required, <code>AZURE_CREDENTIALS</code> is stored as an Organization secret.</li>
+                                        </ul>
+
+                                        <p class="small text-muted mb-0">These steps keep CI secrets centralized, scoped, and auditable for safer accelerator runs.</p>
+                                    </div>
+                                </div>
+
+                <div id="vcsLocal" class="mt-3" style="display:none;">
+                    <div class="border rounded p-3 mb-3 bg-body-tertiary">
+                        <h5 class="mb-2">Local / Other</h5>
+                        <p class="mb-2">For local filesystem or unsupported VCS, ensure the bootstrap process can access and push to the repository path. Confirm Git CLI and filesystem permissions for the user running the bootstrap.</p>
+                        <p class="small text-muted mb-0">Tip: For automated runs prefer hosted VCS so the accelerator can run in CI/CD without local credentials.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column footer-left mt-4">
+                <div class="form-check gated-checkbox">
+                    <input class="form-check-input" type="checkbox" id="phase1VcsDoneCheckbox">
+                    <label class="form-check-label" for="phase1VcsDoneCheckbox">I have done already</label>
+                </div>
+            </div>
+        </div> <!-- end card-body -->
+    </div> <!-- end card -->
+    <div class="wizard-footer">
+        <a href="/phase1/subscriptions" class="btn btn-outline-secondary wizard-btn wizard-btn-outline">Back</a>
+        <button id="goToPhase2" data-href="/phase2" class="btn btn-primary wizard-btn" disabled>Go to Phase 2 - Bootstrap</button>
+    </div>
+</div>
+{% endblock %}

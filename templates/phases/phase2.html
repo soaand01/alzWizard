@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% block content %}{% include 'navmenu.html' %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card w-100 shadow-lg" style="max-width: 700px;">
+        <div class="card-body position-relative">
+            <h3 class="card-title mb-3">Phase 2 - Bootstrap</h3>
+            <p class="lead mb-4">Run the bootstrap process to set up your continuous delivery environment.</p>
+            <div class="mb-4">
+                <p><strong>Overview:</strong> Phase 2 runs the accelerator bootstrap. The bootstrap prepares your VCS repository, seeds starter modules, and creates the initial Azure artifacts needed to run the full platform landing zone bootstrap.</p>
+
+                <h6 class="mt-3">Pre-flight</h6>
+                <ul>
+                    <li>Confirm you have completed Phase 1 (VCS tokens, organization secrets, and subscription/service-principal prerequisites).</li>
+                    <li>Use a PowerShell Core terminal (pwsh) for bootstrap commands and install or update the <a href="https://www.powershellgallery.com/packages/ALZ/" target="_blank">ALZ PowerShell module</a>:</li>
+                </ul>
+                <pre><code class="language-bash"># in pwsh
+Get-InstalledModule -Name ALZ || Install-Module -Name ALZ -Scope CurrentUser -Force
+Update-Module -Name ALZ</code></pre>
+
+                <h6 class="mt-3">Configuration inputs</h6>
+                <p>The accelerator accepts three optional configuration inputs. Provide any combination to pre-configure the bootstrap run:</p>
+
+                <ol>
+                    <li>
+                        <strong>Bootstrap Configuration File (YAML)</strong>
+                        <p class="mb-1">A YAML file that the accelerator uses to configure the bootstrap run: which starter modules to use, location choices, management group IDs, and repo naming conventions. We provide examples tailored for each IaC and VCS combination.</p>
+                        <p class="mb-1">Key points:</p>
+                        <ul>
+                            <li>The booster will also generate a <code>terraform.tfvars.json</code> for starter modules to avoid duplicating inputs.</li>
+                            <li>Examples live in the accelerator documentation and the starter module examples for your chosen stack.</li>
+                            <li>Validate your YAML for syntax before running bootstrap (lint or an online YAML validator).</li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <strong>Platform Landing Zone Configuration File (tfvars)</strong>
+                        <p class="mb-1">This HCL <code>.tfvars</code> file determines resource choices for the Platform Landing Zone starter module (Terraform ALZ). It controls things like hub topology, network patterns, and which optional resources are enabled.</p>
+                        <p class="mb-1">Key points:</p>
+                        <ul>
+                            <li>This file is currently required only for the Terraform Azure Verified Module (avm-ptn-alz) scenario. Bicep and other flows can skip it.</li>
+                            <li>The accelerator validates this file and copies it to your repo; it will be renamed to <code>*.auto.tfvars</code> so Terraform picks it up automatically.</li>
+                            <li>Use the provided scenario examples (see the ALZ documentation) as a starting point and preserve comments and ordering where possible.</li>
+                        </ul>
+                    </li>
+
+                                        <li>
+                                                <h6 class="mt-3">Scenario examples (Platform Landing Zone)</h6>
+                                                <p class="mb-2">Pick a platform scenario to preview or download the example <code>.tfvars</code> used by that scenario.</p>
+                                                <div class="mb-3" style="max-width:480px;">
+                                                    <label for="scenarioSelect" class="form-label">Select scenario</label>
+                                                    <select id="scenarioSelect" class="form-select">
+                                                        <option value="" selected disabled>-- select scenario --</option>
+                                                        <option>Multi-Region Hub and Spoke Virtual Network with Azure Firewall</option>
+                                                        <option>Multi-Region Virtual WAN with Azure Firewall</option>
+                                                        <option>Multi-Region Hub and Spoke Virtual Network with Network Virtual Appliance (NVA)</option>
+                                                        <option>Multi-Region Virtual WAN with Network Virtual Appliance (NVA)</option>
+                                                        <option>Management Groups, Policy and Management Resources Only</option>
+                                                        <option>Single-Region Hub and Spoke Virtual Network with Azure Firewall</option>
+                                                        <option>Single-Region Virtual WAN with Azure Firewall</option>
+                                                        <option>Single-Region Hub and Spoke Virtual Network with Network Virtual Appliance (NVA)</option>
+                                                        <option>Single-Region Virtual WAN with Network Virtual Appliance (NVA)</option>
+                                                    </select>
+                                                </div>
+                                                <div class="d-flex gap-2 align-items-center mb-2">
+                                                    <a id="downloadScenarioBtn" class="btn btn-outline-primary" href="#" target="_blank" rel="noopener" role="button" aria-disabled="true">Download scenario tfvars</a>
+                                                    <a id="scenarioPageLink" class="btn btn-sm btn-link" href="#" target="_blank" rel="noopener">Open scenario page</a>
+                                                </div>
+                                                <div id="scenarioStatus" class="small text-muted">Select a scenario to fetch its example <code>.tfvars</code>. If fetch is blocked by CORS your browser will show a fallback link to the scenario page where you can download the file.</div>
+                                                <pre id="scenarioPreview" class="mt-2" style="display:none; white-space:pre-wrap; max-height:10rem; overflow:auto;"></pre>
+                                        </li>
+
+                    <li>
+                        <strong>Platform Landing Zone Library (lib) folder</strong>
+                        <p class="mb-1">A folder of optional configuration files used to customize management groups, policies, and environment-specific overrides for the Platform Landing Zone (Terraform ALZ).</p>
+                        <p class="mb-1">Key points:</p>
+                        <ul>
+                            <li>Only required for the Terraform AVM Platform Landing Zone starter module; other IaC workflows may ignore it.</li>
+                            <li>Common uses: renaming management groups, customizing structure, removing or adjusting policy assignments, and adding custom policy definitions.</li>
+                            <li>Documentation and examples for the library live in the Platform Landing Zone Library docs and the AVM module docs.</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h6 class="mt-3">Run the bootstrap</h6>
+                <p class="mb-1">Typical bootstrap commands (example using PowerShell module):</p>
+                <pre><code class="language-powershell"># example: start bootstrap interactively
+Import-Module ALZ
+Start-ALZBootstrap -ConfigFile .\bootstrap-config.yaml</code></pre>
+                <p class="mb-1">The exact command and parameters depend on your chosen IaC and VCS combination; select one of the two Terraform-based flows below to continue with step-by-step instructions.</p>
+
+                <h6 class="mt-3">Validation & verification</h6>
+                <ul>
+                    <li>Confirm the bootstrap completes without errors and that the starter repository has been created in your Organization.</li>
+                    <li>Verify the repository contains the expected starter module files and a generated <code>terraform.tfvars.json</code> if applicable.</li>
+                    <li>Check CI workflow status (or pipeline runs) and ensure initial runs succeed.</li>
+                </ul>
+            </div>
+            <!-- gating checkbox removed per UX update: choices themselves control progression -->
+                <div class="mt-3">
+                    <h6 class="mt-3">Choose your Terraform flow</h6>
+                    <p class="mb-2">Pick one of the supported Terraform flows to proceed with explicit, tested instructions:</p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 d-flex flex-column justify-content-between bg-body-tertiary">
+                                <div>
+                                    <h6 class="mb-2">Azure DevOps + Terraform</h6>
+                                    <p class="mb-2 small">Use Azure DevOps pipelines and the Terraform starter modules. Recommended when your organization uses Azure DevOps as the CI/CD platform.</p>
+                                    <p class="mb-0"><a href="https://azure.github.io/Azure-Landing-Zones/accelerator/userguide/2_start/terraform-azuredevops/" target="_blank">Read Azure DevOps + Terraform docs</a></p>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input flow-choice" type="checkbox" value="azuredevops" id="flowAzureCheckbox" data-href="/phase2/terraform-azuredevops">
+                                        <label class="form-check-label" for="flowAzureCheckbox">I will use Azure DevOps + Terraform</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 d-flex flex-column justify-content-between bg-body-tertiary">
+                                <div>
+                                    <h6 class="mb-2">GitHub + Terraform</h6>
+                                    <p class="mb-2 small">Use GitHub Actions with the Terraform starter modules. Recommended when your organization hosts code in GitHub.</p>
+                                    <p class="mb-0"><a href="https://azure.github.io/Azure-Landing-Zones/accelerator/userguide/2_start/terraform-github/" target="_blank">Read GitHub + Terraform docs</a></p>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input flow-choice" type="checkbox" value="github" id="flowGithubCheckbox" data-href="/phase2/terraform-github">
+                                        <label class="form-check-label" for="flowGithubCheckbox">I will use GitHub + Terraform</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div> <!-- end card-body -->
+    </div> <!-- end card -->
+    <div class="wizard-footer">
+        <a href="/phase1/vcs" class="btn btn-outline-secondary wizard-btn wizard-btn-outline">Back</a>
+        <button id="goToPhase3" data-href="/phase3" class="btn btn-primary wizard-btn" disabled>Next</button>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    (function(){
+        // mapping scenario title -> raw tfvars URL and scenario page (exact files from Azure ALZ repo)
+        var mapping = {
+            'Multi-Region Hub and Spoke Virtual Network with Azure Firewall': {
+                raw: 'https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/platform_landing_zone/examples/full-multi-region/hub-and-spoke-vnet.tfvars',
+                page: 'https://azure.github.io/Azure-Landing-Zones/accelerator/startermodules/terraform-platform-landing-zone/scenarios/multi-region-hub-and-spoke-vnet-with-azure-firewall/'
+            },
+            'Multi-Region Virtual WAN with Azure Firewall': {
+                raw: 'https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/platform_landing_zone/examples/full-multi-region/virtual-wan.tfvars',
+                page: 'https://azure.github.io/Azure-Landing-Zones/accelerator/startermodules/terraform-platform-landing-zone/scenarios/multi-region-virtual-wan-with-azure-firewall/'
+            },
+            'Multi-Region Hub and Spoke Virtual Network with Network Virtual Appliance (NVA)': {
+                raw: 'https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/platform_landing_zone/examples/full-multi-region-nva/hub-and-spoke-vnet.tfvars',
+                page: 'https://azure.github.io/Azure-Landing-Zones/accelerator/startermodules/terraform-platform-landing-zone/scenarios/multi-region-hub-and-spoke-vnet-with-nva/'
+            },
+            'Multi-Region Virtual WAN with Network Virtual Appliance (NVA)': {
+                raw: 'https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/platform_landing_zone/examples/full-multi-region-nva/virtual-wan.tfvars',
+                page: 'https://azure.github.io/Azure-Landing-Zones/accelerator/startermodules/terraform-platform-landing-zone/scenarios/multi-region-virtual-wan-with-nva/'
+            },
+            'Management Groups, Policy and Management Resources Only': {
+                raw: 'https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/platform_landing_zone/examples/management-only/management.tfvars',
+                page: 'https://azure.github.io/Azure-Landing-Zones/accelerator/startermodules/terraform-platform-landing-zone/scenarios/management-only/'
+            },
+            'Single-Region Hub and Spoke Virtual Network with Azure Firewall': {
+                raw: 'https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/platform_landing_zone/examples/full-single-region/hub-and-spoke-vnet.tfvars',
+                page: 'https://azure.github.io/Azure-Landing-Zones/accelerator/startermodules/terraform-platform-landing-zone/scenarios/single-region-hub-and-spoke-vnet-with-azure-firewall/'
+            },
+            'Single-Region Virtual WAN with Azure Firewall': {
+                raw: 'https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/platform_landing_zone/examples/full-single-region/virtual-wan.tfvars',
+                page: 'https://azure.github.io/Azure-Landing-Zones/accelerator/startermodules/terraform-platform-landing-zone/scenarios/single-region-virtual-wan-with-azure-firewall/'
+            },
+            'Single-Region Hub and Spoke Virtual Network with Network Virtual Appliance (NVA)': {
+                raw: 'https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/platform_landing_zone/examples/full-single-region-nva/hub-and-spoke-vnet.tfvars',
+                page: 'https://azure.github.io/Azure-Landing-Zones/accelerator/startermodules/terraform-platform-landing-zone/scenarios/single-region-hub-and-spoke-vnet-with-nva/'
+            },
+            'Single-Region Virtual WAN with Network Virtual Appliance (NVA)': {
+                raw: 'https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/platform_landing_zone/examples/full-single-region-nva/virtual-wan.tfvars',
+                page: 'https://azure.github.io/Azure-Landing-Zones/accelerator/startermodules/terraform-platform-landing-zone/scenarios/single-region-virtual-wan-with-nva/'
+            }
+        };
+
+        var sel = document.getElementById('scenarioSelect');
+        var downloadBtn = document.getElementById('downloadScenarioBtn');
+        var pageLink = document.getElementById('scenarioPageLink');
+        var status = document.getElementById('scenarioStatus');
+        var preview = document.getElementById('scenarioPreview');
+
+        function setDisabled(state) {
+            if (downloadBtn) { downloadBtn.setAttribute('aria-disabled', state ? 'true' : 'false'); downloadBtn.classList.toggle('disabled', state); }
+        }
+
+        if (!sel) return;
+        sel.addEventListener('change', function(){
+            var v = sel.value;
+            if (!v || !mapping[v]) { setDisabled(true); pageLink.href = '#'; preview.style.display='none'; return; }
+            var m = mapping[v];
+            // update page link
+            pageLink.href = m.page;
+            // try to fetch raw tfvars and populate download anchor with blob
+            fetch(m.raw).then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); }).then(function(txt){
+                // create object URL and set download anchor
+                try {
+                    var blob = new Blob([txt], { type: 'text/plain' });
+                    var aurl = URL.createObjectURL(blob);
+                    downloadBtn.href = aurl;
+                    var fname = 'scenario-' + v.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.tfvars';
+                    downloadBtn.download = fname;
+                    setDisabled(false);
+                    status.innerText = 'Fetched example .tfvars — click Download to save it locally.';
+                    preview.style.display = '';
+                    preview.innerText = txt.slice(0, 400);
+                    // revoke previous URLs later
+                    setTimeout(function(){ try { URL.revokeObjectURL(aurl); } catch(e){} }, 1500);
+                } catch(e){
+                    // fallback: set download to scenario page
+                    downloadBtn.href = m.page; downloadBtn.removeAttribute('download'); setDisabled(false);
+                    status.innerText = 'Could not create download blob; opening scenario page instead.';
+                }
+            }).catch(function(err){
+                // CORS or network fail — fallback to scenario page
+                downloadBtn.href = m.page; downloadBtn.removeAttribute('download'); setDisabled(false);
+                status.innerText = 'Could not fetch example directly (CORS or network). Use the scenario page to download the tfvars.';
+                preview.style.display = 'none';
+            });
+        });
+    })();
+});
+</script>
+{% endblock %}

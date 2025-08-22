@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}{% include 'navmenu.html' %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card w-100 shadow-lg" style="max-width: 700px;">
+        <div class="card-body position-relative">
+            <h3 class="card-title mb-3">Phase 1 — Subscriptions & Permissions</h3>
+            <p class="lead mb-4">Prepare management groups, subscriptions, and the service principal used for automation.</p>
+
+            <p><strong>Purpose:</strong> This page guides you through creating platform subscriptions, assigning Owner roles, and creating a Portal-based service principal for bootstrap automation.</p>
+
+            <h5 class="mt-3">Before you start</h5>
+            <ul>
+                <li><strong>Administrator account:</strong> Required to create app registrations and assign roles.</li>
+                <li><strong>Subscription list:</strong> Have the intended subscription names and region selections available.</li>
+            </ul>
+
+            <h5 class="mt-3">Steps</h5>
+            <ol>
+                <li>Create or identify the parent management group (Tenant Root Group or a new group) and record its name.</li>
+                <li>Create three platform subscriptions: <strong>Management</strong>, <strong>Identity</strong>, and <strong>Connectivity</strong>, and move them under the chosen management group.</li>
+                <li>Assign the <strong>Owner</strong> role on each subscription and on the parent management group (Access control (IAM) → + Add → Add role assignment → Owner → Select the principal).</li>
+                <li>In the Azure Portal, create a Service Principal (Portal): Portal → <strong>Entra ID</strong> → <strong>App registrations</strong> → <strong>+ New registration</strong>. Choose a name (recommended: <code>sp-alz-bootstrap</code>) and register the app.</li>
+                <li>Record the <code>Application (client) ID</code> and the <code>Tenant ID</code> for the new app registration.</li>
+                <li>Certificates &amp; secrets → <strong>+ New client secret</strong> → add a secret and record its <strong>Value</strong> (this is <code>ARM_CLIENT_SECRET</code>).</li>
+                <li>Assign the <strong>Owner</strong> role to the Service Principal for each subscription and the parent management group via Access control (IAM) → Add role assignment.</li>
+                <li>Export credentials into PowerShell Core (pwsh) for the bootstrap session:
+                    <pre><code>$env:ARM_TENANT_ID = "&lt;tenant id&gt;"
+$env:ARM_CLIENT_ID = "&lt;client id&gt;"
+$env:ARM_CLIENT_SECRET = "&lt;client secret&gt;"
+$env:ARM_SUBSCRIPTION_ID = "&lt;subscription id&gt;"</code></pre>
+                    <p class="small text-muted">These environment values are temporary for the session; re-export them if you open a new terminal.</p>
+                </li>
+            </ol>
+
+            <h6 class="mt-3">Verify</h6>
+            <ul>
+                <li>Confirm the Service Principal appears in Access control (IAM) with the **Owner** role on each subscription and the parent management group.</li>
+                <li>From PowerShell (with the exported env vars) run a simple command to verify authentication: <code>az account show</code>.</li>
+            </ul>
+
+            <p class="small text-muted">Store secrets securely (Azure Key Vault or CI secret store) and rotate them regularly. If your tenant blocks app registrations, contact your tenant administrator to enable the capability or use an existing managed identity.</p>
+
+            <div class="d-flex flex-column footer-left mt-4">
+                <div class="form-check gated-checkbox">
+                    <input class="form-check-input" type="checkbox" id="phase1SubsDoneCheckbox">
+                    <label class="form-check-label" for="phase1SubsDoneCheckbox">I have done already</label>
+                </div>
+            </div>
+        </div> <!-- end card-body -->
+    </div> <!-- end card -->
+    <div class="wizard-footer">
+        <a href="/phase1/tools" class="btn btn-outline-secondary wizard-btn wizard-btn-outline">Back</a>
+        <button id="goToPhase1Vcs" data-href="/phase1/vcs" class="btn btn-primary wizard-btn" disabled>Go to Phase 1 - VCS</button>
+    </div>
+</div>
+{% endblock %}

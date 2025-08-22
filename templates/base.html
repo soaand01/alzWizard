@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALZ Wizard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <style>
+        /* typography */
+        body, .card-title, .navbar-brand, h2, h3, h4 {
+            font-family: 'Montserrat', sans-serif;
+        }
+    body { font-weight: 400; }
+    .lead { font-weight: 400; }
+    h2, h3, h4, .card-title { font-weight: 600; }
+
+    /* Explanatory block used on the homepage and other pages
+       Use the `.explanation` wrapper to make short descriptions and disclosures
+       look like a subtle, readable card that aligns with the wizard layout. */
+    .explanation {
+        max-width: 700px;
+        margin: 1rem auto;
+        background: #f8fafc; /* very light surface */
+        border: 1px solid rgba(15,23,36,0.04);
+        color: #0b1220;
+        padding: 1rem 1.25rem;
+        border-radius: .5rem;
+        box-shadow: 0 1px 3px rgba(2,6,23,0.04);
+        font-size: 1rem;
+        line-height: 1.45;
+    }
+    .explanation h3 {
+        margin: 0 0 .25rem 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+    .explanation p { margin: .25rem 0; color: #374151; }
+    .explanation .muted { color: #6b7280; font-size: .95rem; }
+
+    /* small note / AI disclosure style inside the explanation block */
+    .ai-disclosure {
+        margin-top: .6rem;
+        background: rgba(59,130,246,0.06); /* subtle blue tint */
+        border-left: 3px solid rgba(99,102,241,0.9);
+        padding: .5rem .75rem;
+        border-radius: .35rem;
+        font-size: .88rem;
+        color: #374151;
+    }
+    @media (prefers-color-scheme: dark) {
+        .explanation { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); color: #e6edf3; border: 1px solid rgba(255,255,255,0.04); }
+        .explanation p, .explanation .muted, .ai-disclosure { color: #cbd5e1; }
+        .ai-disclosure { background: rgba(99,102,241,0.06); }
+    }
+
+        /* consistent wizard button sizing and font */
+        .wizard-btn {
+            display: inline-block;
+            box-sizing: border-box;
+            padding: .5rem 1rem; /* match btn-lg sizing */
+            font-size: 1.125rem;
+            line-height: 1.5;
+            border-radius: .3rem;
+            min-width: 220px; /* default width for desktop */
+            text-align: center;
+            vertical-align: middle;
+        }
+        /* responsive widths for small screens */
+        @media (max-width: 575.98px) {
+            .wizard-btn, .wizard-btn-outline {
+                min-width: 140px;
+                padding: .4rem .75rem;
+                font-size: 1rem;
+            }
+        }
+        @media (min-width: 576px) and (max-width: 991.98px) {
+            .wizard-btn, .wizard-btn-outline {
+                min-width: 180px;
+            }
+        }
+        /* ensure outline secondary buttons look similar size */
+        .wizard-btn-outline {
+            min-width: 220px;
+        }
+        /* refined text styling (avoid excessive bold) */
+        .lead {
+            font-weight: 500; /* medium, not heavy bold */
+            color: #2b2b2b;
+        }
+        .term {
+            font-weight: 700; /* strong but used sparingly */
+            color: var(--bs-primary);
+        }
+
+        /* inline code styling */
+        code {
+            background: rgba(15,23,36,0.04);
+            padding: .08rem .28rem;
+            border-radius: .25rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+            font-size: .95em;
+            color: #0b1220;
+        }
+
+        /* code block styling (dark theme) */
+        pre {
+            background: #1f2937; /* dark background */
+            color: #e6edf3;
+            padding: 1rem 1.25rem;
+            border-radius: .5rem;
+            position: relative;
+            overflow: auto;
+            box-shadow: 0 2px 6px rgba(2,6,23,0.12);
+            font-size: .95rem;
+        }
+        pre code {
+            background: transparent;
+            color: inherit;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+            font-size: .95rem;
+            white-space: pre-wrap; /* allow wrapping */
+            display: block;
+        }
+        /* Prism line numbers adjust padding */
+        pre.line-numbers {
+            padding-left: 1rem;
+        }
+
+        /* copy button */
+        .copy-btn {
+            position: absolute;
+            top: .45rem;
+            right: .45rem;
+            background: rgba(255,255,255,0.06);
+            border: 0;
+            color: #e6edf3;
+            padding: .35rem .5rem;
+            border-radius: .35rem;
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            cursor: pointer;
+            transition: background .12s ease, transform .12s ease;
+        }
+     /* footer-left: keep Back and Next aligned horizontally but ensure the checkbox sits inside the card
+         by reserving space in the footer and positioning the checkbox from the bottom. This prevents
+         the checkbox from rendering partially outside the card while keeping it visually below Back. */
+        /* Keep Back and Next horizontally aligned; stack Back and checkbox in a column
+            so the checkbox always appears below the Back button and remains inside the card. */
+    /* Keep Back vertically centered with the Next button while placing the checkbox
+       visually below Back but still inside the card. Reserve footer space (padding-bottom)
+       and absolutely position the checkbox within that reserved area. */
+    /* Keep Back horizontally aligned with Next while placing the checkbox below Back.
+       Make Back a fixed-height flex item so it lines up with the Next button, then let
+       the checkbox participate in normal document flow below it. Increase card min-height
+       so the checkbox never overflows the card. */
+    .footer-left {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .5rem;
+    }
+    /* Make the Back link occupy the same visual height as the Next button so they align */
+    .footer-left > a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center; /* center the Back text horizontally */
+        text-align: center;
+        height: 48px;
+        padding-left: 0; /* preserve wizard-btn padding but ensure consistent height */
+    }
+    .footer-left .gated-checkbox {
+        position: static; /* normal flow, below Back */
+        margin: 0.125rem 0 0 0.25rem;
+    }
+     /* Force the page container to stack the card and footer vertically so the footer sits below the card
+         and center children horizontally so cards align in the middle of the page. */
+     .container.d-flex { flex-direction: column; align-items: center; }
+     /* Ensure the centered wizard card and footer share the same max-width as the inline card styles (700px)
+         Allow per-page inline styles to override this default by avoiding !important. */
+    .container.d-flex .card.w-100.shadow-lg { max-width: 700px; min-height: auto; }
+    /* reduce default bottom padding so card height matches content more tightly */
+    .container.d-flex .card.w-100.shadow-lg .card-body { padding-bottom: .9rem; }
+    /* tighten footer-left spacing used for Back + checkbox column */
+    .footer-left { gap: .35rem; }
+    .footer-left .gated-checkbox { margin: 0.0625rem 0 0 0.15rem; }
+    .wizard-footer {
+        width: 100%;
+        max-width: 700px; /* match card max-width */
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1.2rem;
+        box-sizing: border-box;
+    }
+    .wizard-footer .wizard-btn, .wizard-footer .wizard-btn-outline {
+        min-width: 160px;
+    }
+        .copy-btn:hover { transform: translateY(-1px); background: rgba(255,255,255,0.08); }
+        .copy-btn:focus { outline: 2px solid rgba(99,102,241,0.25); }
+        .copy-btn .copied {
+            display: none;
+            font-size: .85rem;
+            color: #a7f3d0;
+        }
+        .copy-btn .check { display: none; }
+        .copy-btn.copied .icon { display: none; }
+        .copy-btn.copied .copied { display: inline; }
+        .copy-btn.copied .check { display: inline; }
+        /* small check animation */
+        .copy-btn .check svg { transform-origin: center; animation: pop .18s ease; }
+        @keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.06); } 100% { transform: scale(1); } }
+    </style>
+    {% block content %}{% endblock %}
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- highlight.js for automatic code highlighting -->
+        <!-- Prism.js (light theme) + line numbers plugin -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script>
+        // Add a copy button to every <pre><code> block
+        document.addEventListener('DOMContentLoaded', function () {
+            // Use Prism.js: add line numbers, default language, and highlight blocks
+            document.querySelectorAll('pre > code').forEach(function(codeEl) {
+                var pre = codeEl.parentNode;
+                // skip if already has a copy button
+                if (pre.querySelector('.copy-btn')) return;
+
+                // ensure Prism line-numbers and default language
+                try { pre.classList.add('line-numbers'); } catch(e){}
+                try {
+                    var hasLang = Array.from(codeEl.classList).some(function(c){ return c.indexOf('language-') === 0; });
+                    if (!hasLang) codeEl.classList.add('language-bash');
+                } catch(e){}
+
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'copy-btn';
+                btn.setAttribute('aria-label', 'Copy code');
+                btn.innerHTML = '<span class="icon"><i class="fa-regular fa-copy" aria-hidden="true"></i></span>' +
+                    '<span class="check"><i class="fa-solid fa-check" style="color:#a7f3d0" aria-hidden="true"></i></span>' +
+                    '<span class="copied">Copied</span>';
+
+                btn.addEventListener('click', function() {
+                    var text = codeEl.innerText;
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(function() {
+                            btn.classList.add('copied');
+                            setTimeout(function(){ btn.classList.remove('copied'); }, 1400);
+                        }).catch(function() {
+                            fallbackCopy();
+                        });
+                    } else { fallbackCopy(); }
+
+                    function fallbackCopy() {
+                        try {
+                            var range = document.createRange();
+                            range.selectNodeContents(codeEl);
+                            var sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                            document.execCommand('copy');
+                            sel.removeAllRanges();
+                            btn.classList.add('copied');
+                            setTimeout(function(){ btn.classList.remove('copied'); }, 1400);
+                        } catch(e) { console.warn('Copy failed', e); }
+                    }
+                });
+
+                pre.style.paddingTop = '1.5rem';
+                pre.appendChild(btn);
+
+                // highlight this block via Prism
+                try { if (window.Prism) Prism.highlightElement(codeEl); } catch(e){}
+            });
+
+            // Toggle authentication instruction panels when present (Phase 1 - Subscriptions)
+            var authSelect = document.getElementById('authType');
+            if (authSelect) {
+                function toggleAuthPanels() {
+                    var val = authSelect.value;
+                    var user = document.getElementById('authUser');
+                    var sp = document.getElementById('authSp');
+                    if (user) user.style.display = (val === 'user') ? 'block' : 'none';
+                    if (sp) sp.style.display = (val === 'sp') ? 'block' : 'none';
+                }
+                authSelect.addEventListener('change', toggleAuthPanels);
+                toggleAuthPanels();
+            }
+
+            // Toggle VCS instruction panels (Phase 1 - VCS)
+            var vcsSelect = document.getElementById('vcsType');
+            if (vcsSelect) {
+                function toggleVcsPanels() {
+                    var v = vcsSelect.value;
+                    var a = document.getElementById('vcsAzureDevOps');
+                    var g = document.getElementById('vcsGitHub');
+                    var l = document.getElementById('vcsLocal');
+                    if (a) a.style.display = (v === 'azuredevops') ? 'block' : 'none';
+                    if (g) g.style.display = (v === 'github') ? 'block' : 'none';
+                    if (l) l.style.display = (v === 'local') ? 'block' : 'none';
+                }
+                vcsSelect.addEventListener('change', toggleVcsPanels);
+                toggleVcsPanels();
+            }
+
+            // Consolidated gating: wire checkboxes to next buttons (data-href)
+            document.querySelectorAll('button[data-href], a[data-href]').forEach(function(navBtn) {
+                // find nearby checkbox in the closest container
+                var container = navBtn.closest('.d-flex, .card-body, .container, .card');
+                if (!container) return;
+                // exclude flow-choice checkboxes from gating (these control flow selection only)
+                var checkbox = container.querySelector('input.form-check-input[type="checkbox"]:not(.flow-choice)');
+                // find a label for the gating checkbox if present, otherwise fallback
+                var label = null;
+                if (checkbox && checkbox.id) {
+                    label = container.querySelector('label[for="' + checkbox.id + '"]') || container.querySelector('label.form-check-label');
+                } else {
+                    label = container.querySelector('label.form-check-label');
+                }
+                var hasFlowChoices = !!container.querySelector('.flow-choice');
+                var message = navBtn.dataset.alert || (label ? ('Please confirm "' + label.innerText.trim() + '" by checking the box before continuing.') : 'Please confirm the required step by checking the box before continuing.');
+
+                if (checkbox) {
+                    // initialize
+                    try { navBtn.disabled = !checkbox.checked; } catch(e){}
+                    checkbox.addEventListener('change', function() { navBtn.disabled = !this.checked; });
+                    navBtn.addEventListener('click', function(e) {
+                        if (navBtn.disabled) { e.preventDefault(); e.stopPropagation(); alert(message); return; }
+                        // navigate
+                        if (navBtn.dataset.href) window.location = navBtn.dataset.href;
+                    });
+                } else {
+                    // no gating checkbox — if this container has flow choices, skip wiring the simple navigation
+                    if (hasFlowChoices) {
+                        // flow selection logic will handle navigation for the footer Next button
+                        return;
+                    }
+                    // otherwise wire simple navigation for buttons
+                    navBtn.addEventListener('click', function(e) {
+                        if (navBtn.dataset && navBtn.dataset.href) {
+                            e.preventDefault();
+                            window.location = navBtn.dataset.href;
+                        }
+                    });
+                }
+            });
+            // Keep the wizard-footer aligned with its card: set footer max-width to the card's computed width
+            function alignWizardFooters() {
+                document.querySelectorAll('.wizard-footer').forEach(function(footer) {
+                    var container = footer.closest('.container.d-flex');
+                    if (!container) return;
+                    var card = container.querySelector('.card.w-100.shadow-lg');
+                    if (!card) return;
+                    try {
+                        // Prefer the card's inline max-width if present, otherwise use computed pixel width
+                        var inlineMax = card.style.maxWidth;
+                        var targetWidth = '';
+                        if (inlineMax && inlineMax.length) {
+                            targetWidth = inlineMax;
+                        } else {
+                            var comp = window.getComputedStyle(card);
+                            // use the computed max-width if it is in px; otherwise, fall back to bounding rect
+                            if (comp && comp.maxWidth && comp.maxWidth.indexOf('px') !== -1 && comp.maxWidth !== 'none') {
+                                targetWidth = comp.maxWidth;
+                            } else {
+                                targetWidth = Math.round(card.getBoundingClientRect().width) + 'px';
+                            }
+                        }
+                        footer.style.maxWidth = targetWidth;
+                        footer.style.width = '100%';
+                        footer.style.marginLeft = 'auto';
+                        footer.style.marginRight = 'auto';
+                    } catch (e) {
+                        // noop
+                    }
+                });
+            }
+            // align on load
+            try { alignWizardFooters(); } catch(e) {}
+            // realign on resize (debounced)
+            var _wf_timeout = null;
+            window.addEventListener('resize', function() {
+                clearTimeout(_wf_timeout);
+                _wf_timeout = setTimeout(function() { try { alignWizardFooters(); } catch(e){} }, 120);
+            });
+
+            // Flow selection logic for Phase 2: make checkboxes behave like radio buttons,
+            // update the footer Next button text to the selected flow, and navigate when clicked.
+            (function setupFlowSelection(){
+                var flowChoices = document.querySelectorAll('.flow-choice');
+                if (!flowChoices || flowChoices.length === 0) return;
+
+                // locate the wizard-footer Next button (falls back to button[data-href] in footer)
+                var footer = document.querySelector('.wizard-footer');
+                var nextBtn = footer ? footer.querySelector('button[data-href], a[data-href]') : null;
+                if (!nextBtn) return;
+
+                function clearOtherChecks(chk) {
+                    flowChoices.forEach(function(c){ if (c !== chk) c.checked = false; });
+                }
+
+                function updateNextText() {
+                    var selected = Array.from(flowChoices).find(function(c){ return c.checked; });
+                    if (!selected) {
+                        // default label
+                        if (nextBtn.tagName.toLowerCase() === 'a' || nextBtn.tagName.toLowerCase() === 'button') {
+                            nextBtn.innerText = 'Next';
+                        }
+                        try { nextBtn.disabled = true; } catch(e){}
+                        return;
+                    }
+                    var label = selected.nextElementSibling ? selected.nextElementSibling.innerText.trim() : selected.value;
+                    var short = label.replace(/^I will use /i, '');
+                    nextBtn.innerText = short;
+                    try { nextBtn.disabled = false; } catch(e){}
+                }
+
+                flowChoices.forEach(function(chk){
+                    chk.addEventListener('change', function(e){
+                        if (this.checked) {
+                            clearOtherChecks(this);
+                        }
+                        updateNextText();
+                    });
+                });
+
+                // initial state
+                updateNextText();
+
+                // wire footer next click to navigate to selected flow if any
+                nextBtn.addEventListener('click', function(e){
+                    // respect gating checkbox in the current card/container but ignore flow-choice checkboxes
+                    var container = nextBtn.closest('.d-flex, .card-body, .container, .card');
+                    var gating = container ? container.querySelector('input.form-check-input[type="checkbox"]:not(.flow-choice)') : null;
+                    if (gating && !gating.checked) {
+                        e.preventDefault();
+                        var label = gating ? (container.querySelector('label.form-check-label') ? container.querySelector('label.form-check-label').innerText.trim() : 'required step') : 'required step';
+                        alert('Please confirm "' + label + '" by checking the box before continuing.');
+                        return;
+                    }
+
+                    var selected = Array.from(flowChoices).find(function(c){ return c.checked; });
+                    if (!selected) {
+                        e.preventDefault();
+                        alert('Please select a target flow before continuing.');
+                        return;
+                    }
+                    // navigate using the selected flow's data-href; also keep nextBtn.dataset.href in sync
+                    var target = selected.dataset.href || selected.getAttribute('data-href');
+                    if (target) {
+                        // keep dataset.href on the next button for consistency with other nav logic
+                        try { nextBtn.dataset.href = target; } catch(e) { nextBtn.setAttribute('data-href', target); }
+                        e.preventDefault();
+                        window.location = target;
+                    }
+                });
+            })();
+
+            // ...existing code...
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

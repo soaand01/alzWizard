@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}{% include 'navmenu.html' %}
+<div class="container d-flex justify-content-center" style="margin-top: 40px;">
+    <div class="card w-100 shadow-lg" style="max-width: 700px;">
+        <div class="card-body position-relative">
+            <span class="badge bg-warning text-dark position-absolute" style="top: 16px; right: 16px; font-size: 1rem;">Optional</span>
+            <h3 class="card-title mb-3">Phase 0 — Planning</h3>
+            <p class="lead mb-4">Prepare the architecture and decisions that drive your Landing Zone deployment.</p>
+
+            <p><strong>Purpose:</strong> Capture design decisions (IaC choice, management groups, subscription strategy, naming, and networking) so bootstrap and deployment steps are repeatable and auditable.</p>
+
+            <h5 class="mt-3">Before you start</h5>
+            <ul>
+                <li><strong>Stakeholders:</strong> Identify project owner and a tenant administrator who can create app registrations and assign roles.</li>
+                <li><strong>Documentation:</strong> Have the official ALZ docs open and the planning checklist downloaded.</li>
+            </ul>
+
+            <h5 class="mt-3">Steps</h5>
+            <ol>
+                <li>Download the planning checklist: <a href="https://azure.github.io/Azure-Landing-Zones/examples/tf/accelerator/config/checklist.xlsx" target="_blank">checklist.xlsx</a> and open it in your preferred spreadsheet editor.</li>
+                <li>Choose IaC tooling (Bicep or Terraform) and complete the corresponding tabs in the checklist.</li>
+                <li>Define management group layout and create a list of subscription names and intended regions.</li>
+                <li>Record starter module and configuration choices for your scenario (see <a href="https://azure.github.io/Azure-Landing-Zones/accelerator/startermodules/terraform-platform-landing-zone/scenarios/" target="_blank">Scenarios</a>).</li>
+                <li>Save the completed checklist for later phases; it will be used to populate bootstrap configuration.</li>
+            </ol>
+
+            <h6 class="mt-3">Verify</h6>
+            <ul>
+                <li>Checklist saved with management group and subscription mappings.</li>
+                <li>Starter module and IaC choice recorded.</li>
+            </ul>
+            </div>
+            <div class="d-flex flex-column footer-left mt-4">
+            </div>
+        </div>
+    </div>
+    <div class="wizard-footer">
+        <a href="/wizard" class="btn btn-outline-secondary wizard-btn wizard-btn-outline">Back</a>
+        <a href="/phase1/tools" id="goToPhase0Planning" class="btn btn-primary wizard-btn">Go to Phase 1 - Tools</a>
+    </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

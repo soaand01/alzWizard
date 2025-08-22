@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block content %}{% include 'navmenu.html' %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card w-100 shadow-lg" style="max-width: 700px;">
+        <div class="card-body position-relative">
+            <!-- top-right explanatory badge (opens modal) -->
+            <a role="button" class="badge bg-info text-dark position-absolute top-0 end-0 m-3 py-2 px-3" data-bs-toggle="modal" data-bs-target="#phase3ExplainModal" aria-label="Explanation">Explanation</a>
+            <h3 class="card-title mb-3">Phase 3 - Deploy the Landing Zone</h3>
+            <p class="lead mb-4">Now that your environment is bootstrapped, trigger the continuous delivery pipeline in your chosen version control system to deploy the Azure Landing Zone.</p>
+
+            <div class="mb-3">
+                <label for="deployTarget" class="form-label">Choose deployment target</label>
+                <select id="deployTarget" class="form-select">
+                    <option value="github">GitHub</option>
+                    <option value="azuredevops">Azure DevOps</option>
+                    <option value="local">Local file system (Terraform)</option>
+                </select>
+            </div>
+
+            <div id="deployInstructions">
+                <!-- GitHub instructions (default) -->
+                <div id="instr-github">
+                    <h6 class="mt-3">GitHub</h6>
+                    <ol>
+                        <li>Navigate to <a href="https://github.com" target="_blank" rel="noopener">github.com</a> and open your repository.</li>
+                        <li>Click <strong>Actions</strong> in the top navigation.</li>
+                        <li>Click the <strong>02 Azure Landing Zones Continuous Delivery</strong> workflow in the left navigation.</li>
+                        <li>Click <strong>Run workflow</strong> in the top right, keep the default branch, and click <strong>Run workflow</strong>.</li>
+                        <li>The pipeline will run a plan. If you provided <code>apply_approvers</code> during bootstrap, you will be prompted to approve the apply job.</li>
+                        <li>The pipeline will run an apply and deploy the Azure landing zone based on the starter module you chose.</li>
+                    </ol>
+                </div>
+
+                <div id="instr-azuredevops" style="display:none;">
+                    <h6 class="mt-3">Azure DevOps</h6>
+                    <ol>
+                        <li>Navigate to <a href="https://dev.azure.com" target="_blank" rel="noopener">dev.azure.com</a> and sign in to your organization.</li>
+                        <li>Open your project and click <strong>Pipelines</strong> in the left navigation.</li>
+                        <li>Locate the <strong>02 Azure Landing Zones Continuous Delivery</strong> pipeline and click it.</li>
+                        <li>Click <strong>Run pipeline</strong> in the top right, take the defaults, and click <strong>Run</strong>.</li>
+                        <li>The pipeline will run a plan. If you provided <code>apply_approvers</code> to the bootstrap, it will prompt you to approve the apply stage.</li>
+                        <li>The pipeline will run an apply and deploy an Azure landing zone based on the starter module you chose.</li>
+                    </ol>
+                </div>
+
+                <div id="instr-local" style="display:none;">
+                    <h6 class="mt-3">Local file system (Terraform)</h6>
+                    <p>The Terraform option outputs a <code>scripts/deploy-local.ps1</code> (or similar) file you can run locally to deploy the landing zone.</p>
+                    <ol>
+                        <li>Open a PowerShell Core (pwsh) terminal.</li>
+                        <li>Navigate to the directory shown in the <code>module_output_directory_path</code> output from the bootstrap.</li>
+                        <li>Optionally login or set the subscription:
+                            <pre><code class="language-bash">az login --tenant &lt;TENANT_ID&gt;
+az account set --subscription &lt;SUBSCRIPTION_ID&gt;</code></pre>
+                        </li>
+                        <li>Examine <code>./scripts/deploy-local.ps1</code> to understand what it will do, then run it:</li>
+                        <li>Run <code>./scripts/deploy-local.ps1</code>, review the plan, type <code>yes</code> to proceed, and allow the deployment to complete (this can take some time).</li>
+                        <li>If you set <code>grant_permissions_to_current_user</code> to <code>false</code> during bootstrap, ensure necessary permissions are assigned to your account or service principal before running.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="mb-4 mt-3 small text-muted">
+                <p>If you encounter permission errors while running the pipelines, permissions may take up to 30 minutes to propagate. Pipelines include retry logic, but propagation delays can still cause failures.</p>
+                <p>If you need cleanup guidance after testing or mistakes, see the ALZ FAQs on bootstrap cleanup.</p>
+            </div>
+
+            <div class="d-flex flex-column footer-left mt-4">
+                <div class="form-check gated-checkbox">
+                    <input class="form-check-input" type="checkbox" id="phase3DoneCheckbox">
+                    <label class="form-check-label" for="phase3DoneCheckbox">I have done already</label>
+                </div>
+            </div>
+        </div> <!-- end card-body -->
+        <!-- explanatory modal for Phase 3 -->
+        <div class="modal fade" id="phase3ExplainModal" tabindex="-1" aria-labelledby="phase3ExplainLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="phase3ExplainLabel">What this step will do — Deploy the Landing Zone</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>This step triggers the continuous delivery pipeline that will deploy your Azure Landing Zone based on the starter module you bootstrapped.</p>
+                        <ul>
+                            <li>If you select <strong>GitHub</strong>, you'll run the <em>02 Azure Landing Zones Continuous Delivery</em> workflow in Actions; the workflow plans and then applies the Terraform changes (approval may be required).</li>
+                            <li>If you select <strong>Azure DevOps</strong>, you'll run the <em>02 Azure Landing Zones Continuous Delivery</em> pipeline in Pipelines; it will plan and apply changes in the configured subscription/project.</li>
+                            <li>If you select <strong>Local</strong>, you'll run the provided <code>scripts/deploy-local.ps1</code> to execute the plan and apply locally (ensure credentials and permissions are set).</li>
+                        </ul>
+                        <p class="mb-0">Expect the pipeline to run a plan first and then an apply; if permissions were recently granted, allow time for propagation (up to ~30 minutes) before retrying failed runs.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- end card -->
+    <div class="wizard-footer">
+        <a href="/phase2" class="btn btn-outline-secondary wizard-btn wizard-btn-outline">Back</a>
+        <button id="finishWizard" data-href="/" class="btn btn-success wizard-btn" disabled>Finish</button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    var select = document.getElementById('deployTarget');
+    if (!select) return;
+    var panels = {
+        github: document.getElementById('instr-github'),
+        azuredevops: document.getElementById('instr-azuredevops'),
+        local: document.getElementById('instr-local')
+    };
+
+    function showPanel(key) {
+        Object.keys(panels).forEach(function(k){
+            var el = panels[k];
+            if (!el) return;
+            el.style.display = (k === key) ? 'block' : 'none';
+        });
+    }
+
+    // initialize
+    showPanel(select.value);
+
+    select.addEventListener('change', function(){
+        showPanel(this.value);
+    });
+});
+</script>
+{% endblock %}

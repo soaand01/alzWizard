@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'navmenu.html' %}
+<div class="container d-flex justify-content-center" style="margin-top: 40px;">
+    <div class="card w-100 shadow-lg" style="max-width: 900px;">
+        <div class="card-body">
+            <h2 class="card-title">Get Started</h2>
+            <p class="lead">Quick checklist to plan and prepare for the Azure Landing Zones Accelerator.</p>
+
+            <p><strong>Purpose:</strong> This companion guide condenses the Accelerator user guide into a concise workflow: Plan → Prepare → Bootstrap → Run. Use this page to orient your team and navigate to the appropriate phase.</p>
+
+            <h5 class="mt-3">Before you start</h5>
+            <ul>
+                <li><strong>Administrator access:</strong> Ensure you or a teammate has tenant administrator permissions to create app registrations and assign roles.</li>
+                <li><strong>Decide IaC:</strong> Choose Terraform or Bicep for your deployment and record that choice.</li>
+                <li><strong>Version control:</strong> Select a VCS provider (Azure DevOps or GitHub) and confirm organization-level access if required.</li>
+            </ul>
+
+            <h5 class="mt-3">Steps</h5>
+            <ol>
+                <li>Open the official ALZ Accelerator user guide: <a href="https://azure.github.io/Azure-Landing-Zones/accelerator/userguide/" target="_blank">Azure Landing Zones Accelerator — User Guide</a>.</li>
+                <li>Download and complete the planning checklist (checklist.xlsx). Record management groups, subscription names, regions, and the starter module.</li>
+                <li>Proceed to Phase 0 for planning guidance or go directly to Phase 1 to prepare tools and permissions.</li>
+            </ol>
+
+            <h6 class="mt-3">Verify</h6>
+            <ul>
+                <li>Planning checklist saved and starter choices recorded.</li>
+                <li>Administrator contact identified for app registrations and role assignments.</li>
+            </ul>
+
+            <p class="small text-muted">Phase 0 is optional but recommended for production deployments. Use the links above for detailed guidance.</p>
+        </div>
+    </div>
+
+    <!-- wizard footer (keeps Back/Next aligned horizontally; checkbox sits bottom-left above) -->
+    <div class="wizard-footer" style="margin-top: 1rem; max-width: 900px;">
+        <div class="footer-left">
+            <a data-href="/wizard" class="btn btn-outline-secondary wizard-btn wizard-btn-outline">Back</a>
+            <!-- keep the checkbox visually under Back for UX; input exists above inside the card-body -->
+        </div>
+        <div>
+            <button data-href="/phase0" type="button" class="btn btn-primary wizard-btn">Go to Phase 0</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

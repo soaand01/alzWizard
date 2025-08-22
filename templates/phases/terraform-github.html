@@ -1,0 +1,429 @@
+{% extends 'base.html' %}
+{% block content %}{% include 'navmenu.html' %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+  <div class="card w-100 shadow-lg" style="max-width: 700px;">
+    <div class="card-body position-relative">
+  <!-- top-right explanatory badge (opens modal) -->
+  <a role="button" class="badge bg-info text-dark position-absolute top-0 end-0 m-3 py-2 px-3" data-bs-toggle="modal" data-bs-target="#githubExplainModal" aria-label="Explain this step">Explanation</a>
+      <h3 class="card-title mb-3">Phase 2: GitHub + Terraform</h3>
+      <p class="lead mb-3">Step-by-step adapted guidance for bootstrapping GitHub for the ALZ Terraform flow. This page summarizes the official ALZ instructions and links to the authoritative docs for full details.</p>
+
+      <h6 class="mt-3">Folder layout</h6>
+      <pre><code class="language-bash">mkdir -p ~/accelerator/config
+mkdir -p ~/accelerator/output
+touch ~/accelerator/config/inputs.yaml
+# optional for Terraform AVM starter
+touch ~/accelerator/config/platform-landing-zone.tfvars
+</code></pre>
+
+      <h6 class="mt-3">If using ALZ AVM starter modules</h6>
+      <p>Create a <code>lib</code> folder under <code>config</code> and copy the starter lib templates into it (example using a temporary clone):</p>
+      <pre><code class="language-bash">tempFolder=~/accelerator/temp
+mkdir -p "$tempFolder"
+git clone -n --depth=1 --filter=tree:0 "https://github.com/Azure/alz-terraform-accelerator" "$tempFolder"
+cd "$tempFolder"
+libFolderPath="templates/platform_landing_zone/lib"
+git sparse-checkout set --no-cone "$libFolderPath"
+git checkout
+cp -r "$tempFolder/$libFolderPath" ~/accelerator/config/
+cd ~
+rm -rf "$tempFolder"
+</code></pre>
+
+      <h6 class="mt-3">Populate inputs</h6>
+      <p>Open <code>~/accelerator/config/inputs.yaml</code> and copy the example inputs for the GitHub Terraform starter. Example source files for inputs are available in the ALZ repository; choose the example that matches your starter module (ALZ, FSI, or SLZ).</p>
+      <p>Choose a starter module to view example inputs for GitHub bootstrap flows and optionally create a customized inputs file.</p>
+
+      <div class="mb-3" style="max-width:420px;">
+        <label for="starterModule" class="form-label">Starter module</label>
+        <select id="starterModule" class="form-select">
+          <option value="" selected disabled>-- select starter module --</option>
+          <option value="alz">Azure Verified Modules for Platform Landing Zone (ALZ)</option>
+          <option value="fsi">Financial Services Industry Landing Zone (FSI)</option>
+          <option value="slz">Sovereign Landing Zone (SLZ)</option>
+        </select>
+      </div>
+
+      <div id="starter-alz" class="border rounded p-3 mb-3" style="background:#eef8ff; display:none; border-left:4px solid #0ea5e9;">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <h6 class="mb-1">Azure Verified Modules (ALZ)</h6>
+            <p class="mb-0">Use the <strong>inputs-github.yaml</strong> example for the Platform Landing Zone starter module. This inputs file contains the platform-level configuration (management group names, subscription prefixes, starter locations, and module toggles).</p>
+          </div>
+          <div class="ms-3">
+            <a id="downloadGithubAlz" class="btn btn-sm btn-outline-primary" href="https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/platform_landing_zone/examples/bootstrap/inputs-github.yaml" target="_blank" rel="noopener">Download ALZ inputs</a>
+            <div class="mt-2">
+              <a href="#" class="create-new-badge btn btn-sm btn-success" data-starter="alz">Create new</a>
+            </div>
+          </div>
+        </div>
+        <p class="small text-muted">Source: <a href="https://azure.github.io/Azure-Landing-Zones/accelerator/startermodules/terraform-platform-landing-zone/" target="_blank">Platform Landing Zone starter</a>.</p>
+      </div>
+
+      <div id="starter-fsi" class="border rounded p-3 mb-3" style="background:#eef8ff; display:none; border-left:4px solid #0ea5e9;">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <h6 class="mb-1">Financial Services Industry (FSI)</h6>
+            <p class="mb-0">Use the <strong>inputs-github.yaml</strong> example from the FSI starter module. This inputs file contains additional archetypes, policy defaults, and configuration tailored for financial services deployments.</p>
+          </div>
+          <div class="ms-3">
+            <a class="btn btn-sm btn-outline-primary" href="https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/microsoft_cloud_for_industry/financial_services_landing_zone/examples/bootstrap/inputs-github.yaml" target="_blank" rel="noopener">Download FSI inputs</a>
+            <div class="mt-2">
+              <a href="#" class="create-new-badge btn btn-sm btn-success" data-starter="fsi">Create new</a>
+            </div>
+          </div>
+        </div>
+        <p class="small text-muted">Source: <a href="https://azure.github.io/Azure-Landing-Zones/accelerator/startermodules/terraformfsi/" target="_blank">FSI starter</a>.</p>
+      </div>
+
+      <div id="starter-slz" class="border rounded p-3 mb-3" style="background:#eef8ff; display:none; border-left:4px solid #0ea5e9;">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <h6 class="mb-1">Sovereign Landing Zone (SLZ)</h6>
+            <p class="mb-0">Use the <strong>inputs-github.yaml</strong> example from the Sovereign Landing Zone starter module. This file includes defaults and constraints tailored for sovereign cloud deployments.</p>
+          </div>
+          <div class="ms-3">
+            <a class="btn btn-sm btn-outline-primary" href="https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/microsoft_cloud_for_industry/sovereign_landing_zone/examples/bootstrap/inputs-github.yaml" target="_blank" rel="noopener">Download SLZ inputs</a>
+            <div class="mt-2">
+              <a href="#" class="create-new-badge btn btn-sm btn-success" data-starter="slz">Create new</a>
+            </div>
+          </div>
+        </div>
+        <p class="small text-muted">Source: <a href="https://azure.github.io/Azure-Landing-Zones/accelerator/startermodules/terraformsovereign/" target="_blank">SLZ starter</a>.</p>
+      </div>
+
+      <script>
+        (function(){
+          var sel = document.getElementById('starterModule');
+          if (!sel) return;
+          var panels = {
+            'alz': document.getElementById('starter-alz'),
+            'fsi': document.getElementById('starter-fsi'),
+            'slz': document.getElementById('starter-slz')
+          };
+          function update() {
+            var v = sel.value;
+            Object.keys(panels).forEach(function(k){ if (panels[k]) panels[k].style.display = (k===v)?'block':'none'; });
+          }
+          sel.addEventListener('change', update);
+          update();
+        })();
+      </script>
+
+      <h6 class="mt-3">Run the bootstrap</h6>
+      <p>Use the ALZ PowerShell module (pwsh) to run the bootstrap. Install or update the module first:</p>
+      <pre><code class="language-powershell"># in pwsh
+Get-InstalledModule -Name ALZ || Install-Module -Name ALZ -Scope CurrentUser -Force
+Update-Module -Name ALZ
+</code></pre>
+      <p>Then run the bootstrap (example):</p>
+      <pre><code class="language-powershell">Import-Module ALZ
+Start-ALZBootstrap -ConfigFile ~/accelerator/config/inputs.yaml -OutputPath ~/accelerator/output
+# or using Deploy-Accelerator for Terraform starter modules
+Deploy-Accelerator -inputs "~/accelerator/config/inputs.yaml" -starterAdditionalFiles "~/accelerator/config/lib" -output "~/accelerator/output"
+</code></pre>
+
+      <h6 class="mt-3">Verify</h6>
+      <ul>
+        <li>Confirm the bootstrap completes and a starter repository appears in your GitHub organization.</li>
+        <li>Check Actions workflows in the repository; initial runs should complete or show the expected artefacts.</li>
+        <li>Ensure <code>terraform.tfvars.json</code> appears if generated for the starter module.</li>
+      </ul>
+
+      <p class="mt-3 small text-muted">Source: adapted from the official ALZ docs: <a href="https://azure.github.io/Azure-Landing-Zones/accelerator/userguide/2_start/terraform-github/" target="_blank">GitHub + Terraform</a></p>
+
+    </div>
+    <!-- explanatory modal for GitHub flow -->
+    <div class="modal fade" id="githubExplainModal" tabindex="-1" aria-labelledby="githubExplainLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="githubExplainLabel">What this step will do — GitHub + Terraform</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>This step prepares and runs the ALZ Terraform bootstrap flow using GitHub as the CI/CD host. In short, it will:</p>
+            <ul>
+              <li>Create or populate a starter repository in your GitHub organization containing the ALZ starter code for the selected platform.</li>
+              <li>Provision the required pipeline/workflow files and secrets (e.g., repository secrets, PATs) so the bootstrap can execute safely from GitHub Actions.</li>
+              <li>Execute the bootstrap logic (via Actions) which will generate environment configuration artifacts, initial Terraform state, and starter resources required by the ALZ pattern.</li>
+            </ul>
+            <p>What to expect and check:</p>
+            <ul>
+              <li>After a successful run you should see a starter repo in your organization and one or more Actions workflow runs.</li>
+              <li>The process may create or update infrastructure in the target subscription when the pipelines run—ensure you use the correct subscription and credentials.</li>
+              <li>Keep the generated <code>terraform.tfvars.json</code> and any outputs safe; they contain environment configuration for later stages.</li>
+            </ul>
+            <p class="mb-0"><strong>Tip:</strong> Review the example <code>inputs-github.yaml</code> before running; it controls naming, identities, and the bootstrap behavior.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="wizard-footer" style="margin-top:1.25rem; max-width:700px;">
+    <a href="/phase2" class="btn btn-outline-secondary wizard-btn wizard-btn-outline">Back</a>
+    <a href="/phase3" class="btn btn-primary wizard-btn">Continue to Phase 3</a>
+  </div>
+</div>
+    <!-- Modal: Create / Edit YAML (reused pattern) -->
+    <div class="modal fade" id="createYamlModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Create or customize inputs</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <ul class="nav nav-tabs" id="yamlEditorTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="form-tab" data-bs-toggle="tab" data-bs-target="#form-tab-pane" type="button" role="tab">Form</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="raw-tab" data-bs-toggle="tab" data-bs-target="#raw-tab-pane" type="button" role="tab">Raw YAML</button>
+              </li>
+            </ul>
+            <div class="tab-content pt-3">
+              <div class="tab-pane fade show active" id="form-tab-pane" role="tabpanel">
+                <div id="generatedForm"></div>
+                <div class="mt-3">
+                  <small class="text-muted">Note: the form shows top-level keys. For complex nested structures use the Raw YAML tab.</small>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="raw-tab-pane" role="tabpanel">
+                <div class="mb-3">
+                  <label for="rawYamlText" class="form-label">Raw YAML</label>
+                  <textarea id="rawYamlText" class="form-control" rows="14" spellcheck="false"></textarea>
+                </div>
+                <div class="mb-2 text-muted">If fetch fails you can paste or edit the YAML directly here and then download.</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="applyFormToRaw" class="btn btn-warning text-dark">Sync Form → Raw</button>
+            <button id="applyRawToForm" class="btn btn-outline-secondary">Sync Raw → Form</button>
+            <button id="downloadEditedYaml" class="btn btn-primary">Download edited YAML</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast: download confirmation -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
+      <div id="downloadToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <strong class="me-auto">ALZ Wizard</strong>
+          <small class="text-muted">now</small>
+          <button type="button" class="btn-close ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          <div id="downloadToastBody">Downloaded: <span id="downloadToastFilename"></span></div>
+          <pre id="downloadToastPreview" style="white-space:pre-wrap; max-height:6rem; overflow:auto; background:transparent; margin: .5rem 0 0 0; padding:0; border:0; font-size: .85rem;"></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- js-yaml (CDN) for client-side parsing and dumping -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function(){
+      (function(){
+        var mapping = {
+          'alz': 'https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/platform_landing_zone/examples/bootstrap/inputs-github.yaml',
+          'fsi': 'https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/microsoft_cloud_for_industry/financial_services_landing_zone/examples/bootstrap/inputs-github.yaml',
+          'slz': 'https://raw.githubusercontent.com/Azure/alz-terraform-accelerator/refs/heads/main/templates/microsoft_cloud_for_industry/sovereign_landing_zone/examples/bootstrap/inputs-github.yaml'
+        };
+
+        var starterSel = document.getElementById('starterModule');
+        var modalEl = document.getElementById('createYamlModal');
+        var modal = modalEl ? new bootstrap.Modal(modalEl) : null;
+        var generatedForm = document.getElementById('generatedForm');
+        var applyFormToRaw = document.getElementById('applyFormToRaw');
+        var applyRawToForm = document.getElementById('applyRawToForm');
+        var downloadEdited = document.getElementById('downloadEditedYaml');
+
+        function clearForm() { if (generatedForm) generatedForm.innerHTML = ''; }
+
+        function generateFormFromObject(obj) {
+          clearForm();
+          if (!generatedForm) return;
+          var keys = Object.keys(obj || {});
+          if (keys.length === 0) {
+            generatedForm.innerHTML = '<div class="alert alert-info">No top-level keys found; use the Raw YAML tab to edit the file directly.</div>';
+            return;
+          }
+          var frag = document.createDocumentFragment();
+          keys.forEach(function(k){
+            var val = obj[k];
+            var wrapper = document.createElement('div');
+            wrapper.className = 'mb-3';
+            var label = document.createElement('label');
+            label.className = 'form-label';
+            label.innerText = k;
+            wrapper.appendChild(label);
+            if (val === null || typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') {
+              var input = document.createElement('input');
+              input.type = 'text';
+              input.className = 'form-control';
+              input.value = (val === null) ? '' : String(val);
+              input.setAttribute('data-key', k);
+              wrapper.appendChild(input);
+            } else if (Array.isArray(val)) {
+              var ta = document.createElement('textarea');
+              ta.className = 'form-control';
+              ta.rows = 3;
+              ta.setAttribute('data-key', k);
+              ta.value = val.map(function(i){ return typeof i === 'object' ? JSON.stringify(i) : String(i); }).join('\n');
+              wrapper.appendChild(ta);
+            } else if (typeof val === 'object') {
+              var nested = document.createElement('textarea');
+              nested.className = 'form-control';
+              nested.rows = 4;
+              nested.setAttribute('data-key', k);
+              nested.value = JSON.stringify(val, null, 2);
+              wrapper.appendChild(nested);
+            } else {
+              var other = document.createElement('input');
+              other.type = 'text';
+              other.className = 'form-control';
+              other.value = String(val || '');
+              other.setAttribute('data-key', k);
+              wrapper.appendChild(other);
+            }
+            frag.appendChild(wrapper);
+          });
+          generatedForm.appendChild(frag);
+        }
+
+        function formToObject() {
+          var out = {};
+          if (!generatedForm) return out;
+          var fields = generatedForm.querySelectorAll('[data-key]');
+          fields.forEach(function(f){
+            var k = f.getAttribute('data-key');
+            var v = f.value;
+            if (f.tagName.toLowerCase() === 'textarea') {
+              var trimmed = v.trim();
+              if (trimmed.startsWith('{')) {
+                try { out[k] = JSON.parse(trimmed); return; } catch(e) { out[k] = trimmed; return; }
+              }
+              if (trimmed.indexOf('\n') !== -1) {
+                out[k] = trimmed.split(/\r?\n/).map(function(s){ s = s.trim(); try { return JSON.parse(s); } catch(e){ return s; } }).filter(function(x){ return x !== ''; });
+              } else {
+                try { out[k] = JSON.parse(trimmed); } catch(e) { out[k] = trimmed; }
+              }
+            } else {
+              if (v === 'true') out[k] = true;
+              else if (v === 'false') out[k] = false;
+              else if (!isNaN(v) && v.trim() !== '') out[k] = Number(v);
+              else out[k] = v;
+            }
+          });
+          return out;
+        }
+
+        function setRawFromObject(obj) {
+          try {
+            var yaml = jsyaml.dump(obj, { noRefs: true });
+            var el = document.getElementById('rawYamlText');
+            if (el) el.value = yaml;
+          } catch(e) {
+            var el = document.getElementById('rawYamlText');
+            if (el) el.value = '# Error serializing object: ' + e + '\n' + JSON.stringify(obj, null, 2);
+          }
+        }
+
+        function openModalForStarter(starterKey) {
+          if (!mapping[starterKey]) { alert('No starter selected or unknown starter'); return; }
+          var url = mapping[starterKey];
+          fetch(url).then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); }).then(function(txt){
+            var el = document.getElementById('rawYamlText');
+            if (el) el.value = txt;
+            try {
+              var obj = jsyaml.load(txt) || {};
+              generateFormFromObject(obj);
+            } catch(e) {
+              clearForm();
+              generatedForm.innerHTML = '<div class="alert alert-warning">Failed to parse YAML into form: ' + e + '</div>';
+            }
+            if (modal) modal.show();
+          }).catch(function(err){
+            var el = document.getElementById('rawYamlText');
+            if (el) el.value = '# Failed to fetch example YAML: ' + err + '\n\n# You can paste the YAML here or open the Raw YAML tab to edit.';
+            clearForm();
+            generatedForm.innerHTML = '<div class="alert alert-warning">Could not fetch example YAML; paste it into the Raw YAML tab and then click <em>Sync Raw → Form</em> to attempt form generation.</div>';
+            if (modal) modal.show();
+          });
+        }
+
+        // per-panel create-new badges (only ALZ on this page)
+        document.querySelectorAll('.create-new-badge').forEach(function(b){
+          b.addEventListener('click', function(e){ e.preventDefault();
+            var key = this.dataset.starter || 'alz';
+            openModalForStarter(key);
+          });
+        });
+
+        if (applyRawToForm) {
+          applyRawToForm.addEventListener('click', function(){
+            var el = document.getElementById('rawYamlText');
+            var txt = el ? el.value : '';
+            try {
+              var obj = jsyaml.load(txt) || {};
+              generateFormFromObject(obj);
+              var tabEl = document.querySelector('#form-tab');
+              if (tabEl) new bootstrap.Tab(tabEl).show();
+            } catch(e) { alert('Failed to parse YAML: ' + e); }
+          });
+        }
+
+        if (applyFormToRaw) {
+          applyFormToRaw.addEventListener('click', function(){
+            var obj = formToObject();
+            setRawFromObject(obj);
+            var tabEl = document.querySelector('#raw-tab');
+            if (tabEl) new bootstrap.Tab(tabEl).show();
+          });
+        }
+
+        function showDownloadToast(preview, filename) {
+          try {
+            var toastEl = document.getElementById('downloadToast');
+            if (!toastEl) return;
+            var fname = document.getElementById('downloadToastFilename');
+            var prev = document.getElementById('downloadToastPreview');
+            if (fname) fname.innerText = filename || '';
+            if (prev) prev.innerText = preview || '';
+            var t = new bootstrap.Toast(toastEl, { delay: 4500 });
+            t.show();
+          } catch(e) { console.warn('toast failed', e); }
+        }
+
+        if (downloadEdited) {
+          downloadEdited.addEventListener('click', function(){
+            var el = document.getElementById('rawYamlText');
+            var txt = el ? el.value : '';
+            try {
+              jsyaml.load(txt);
+              var blob = new Blob([txt], { type: 'text/yaml' });
+              var a = document.createElement('a');
+              var objUrl = URL.createObjectURL(blob);
+              a.href = objUrl;
+              var starter = 'github-alz';
+              a.download = 'inputs-' + starter + '-custom.yaml';
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              var preview = (txt || '').split('\n').slice(0,6).join('\n');
+              showDownloadToast(preview, a.download);
+              setTimeout(function(){ URL.revokeObjectURL(objUrl); }, 1200);
+            } catch(e) { alert('YAML validation error: ' + e); }
+          });
+        }
+      })();
+      });
+    </script>
+{% endblock %}

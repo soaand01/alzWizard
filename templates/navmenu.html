@@ -1,0 +1,60 @@
+<!-- navmenu.html -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <!-- simple inline SVG mark so there's a small logo without external assets -->
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" class="me-2">
+                <rect width="24" height="24" rx="5" fill="#6366f1"></rect>
+                <text x="12" y="16" text-anchor="middle" font-family="Montserrat, sans-serif" font-size="10" font-weight="700" fill="white">ALZ</text>
+            </svg>
+            <span class="ms-1" style="font-size:1.05rem; font-weight:600; letter-spacing:0.6px;">ALZ Wizard</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#alzNavbar" aria-controls="alzNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="alzNavbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://azure.github.io/Azure-Landing-Zones/accelerator/" target="_blank" rel="noopener">ALZ Docs</a>
+                </li>
+                <li class="nav-item d-none d-lg-block">
+                    <a class="nav-link" href="https://github.com/Azure/alz-terraform-accelerator" target="_blank" rel="noopener">GitHub</a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center ms-auto">
+                <!-- Keep the explanatory modal trigger for users who want a short intro -->
+                <button type="button" class="btn btn-outline-primary me-2 wizard-btn wizard-btn-outline" data-bs-toggle="modal" data-bs-target="#alzModal">What is ALZ Wizard?</button>
+            <!-- Primary CTA: start the wizard using data-href navigation (same logic as home page) -->
+            <button type="button" data-href="/get-started" class="btn btn-primary wizard-btn">Start Wizard</button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Info modal (kept from previous implementation) -->
+<div class="modal fade" id="alzModal" tabindex="-1" aria-labelledby="alzModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="alzModalLabel">What is ALZ Wizard?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-body">
+                        <p>Welcome to ALZ Wizard — a concise walkthrough that guides you through Azure Landing Zones concepts and the Accelerator's deployment patterns.</p>
+                        <p>This companion UI references the official <a href="https://azure.github.io/Azure-Landing-Zones/accelerator/" target="_blank" rel="noopener">Azure Landing Zones Accelerator</a> and offers a guided, opinionated path for setting up platform inputs and running the bootstrap flows.</p>
+                        <p>For production-ready deployments and full documentation, consult the official accelerator and repository links.</p>
+                        <p class="mb-0">Ready to proceed? Click "Start Wizard" in the navbar to begin.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
