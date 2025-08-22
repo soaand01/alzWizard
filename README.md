@@ -60,19 +60,6 @@ How to push to GitHub (local commands)
 
 I cannot create or push a remote repository from here. Use one of the methods below on your machine.
 
-Option A — create repo on GitHub website and push locally
-
-```bash
-git init
-git add .
-git commit -m "Initial commit: ALZ Wizard"
-git branch -M main
-git remote add origin git@github.com:soaand01/<repo>.git
-# or
-# git remote add origin https://github.com/soaand01/<repo>.git
-git push -u origin main
-```
-
 Option B — use GitHub CLI (if installed)
 
 ```bash
