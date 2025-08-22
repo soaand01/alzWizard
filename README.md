@@ -13,8 +13,20 @@ Key features
 - Scenario selector for Platform Landing Zone `.tfvars` examples (download and preview)
 
 Quick start (local development)
+A lightweight Flask + Bootstrap web UI that guides you through the Azure Landing Zones (ALZ) Accelerator
+bootstrap and deployment flows. The ALZ Wizard is intended as a helper and reference UI — it complements the
+ALZ Accelerator documentation and starter repositories; it does not replace them.
 
-1. Create and activate a virtual environment
+This project provides:
+
+- A multi-step, phase-based wizard UI implemented with Flask (Jinja2 templates) and Bootstrap.
+- Centralized client-side behaviors (per-card gating checkboxes, navigation wiring, Prism.js code copy buttons).
+- Phase 2 helpers: bootstrap flow selection, starter inputs download, and Platform Landing Zone scenario `.tfvars` preview/download.
+- A Finish page that summarizes the wizard phases and offers a downloadable phase summary.
+
+Quick start (local development)
+
+1. Create and activate a Python virtual environment
 
 ```bash
 python3 -m venv .venv
@@ -23,19 +35,19 @@ source .venv/bin/activate
 
 2. Install dependencies
 
-If this project has a `requirements.txt` file:
+If a `requirements.txt` file exists in the repo, install it:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-At a minimum you'll need Flask for local testing:
+If not, at minimum install Flask for local testing:
 
 ```bash
 pip install flask
 ```
 
-3. Run the app
+3. Run the app locally
 
 ```bash
 export FLASK_APP=app.py
@@ -43,39 +55,57 @@ export FLASK_ENV=development
 flask run
 ```
 
-Open http://localhost:5000
+Then open: http://localhost:5000
 
-What to look for
+Project layout (high-level)
 
-- `templates/` — Jinja2 templates powering the wizard pages.
-- `templates/phases/phase2.html` — Phase 2 bootstrap page with scenario selector and download support.
-- `static/` — images and other assets used by the UI.
+- `app.py` — small Flask router that renders the wizard views.
+- `templates/` — Jinja2 templates for each page and shared partials (including `base.html` which contains the centralized client JS).
+- `static/` — static assets (images, icons) used by the UI.
 
-Notes & recommendations
+Phases (what the wizard covers)
 
-- Client-side fetches of raw files from GitHub can be blocked by CORS. For reliable fetching, add a small server-side proxy endpoint (e.g. `/proxy/raw?url=`) that fetches remote raw content server-side and returns it to the browser.
-- The current UI includes form-generation helpers for simple scenarios; complex `.tfvars` or nested HCL constructs may not parse perfectly. Prefer editing the raw content for exact fidelity.
+- Phase 0 — Planning: Collect your decisions and scope (subscriptions, naming, governance) before bootstrapping.
+- Phase 1 — Prepare & Bootstrap: Configure accounts, roles, and subscriptions; select your VCS and run the ALZ bootstrap to generate starter inputs.
+- Phase 2 — Inputs & Bootstrapping Flows: Choose a flow (Azure DevOps + Terraform or GitHub + Terraform), download or edit starter inputs, and select platform `.tfvars` scenarios.
+- Phase 3 — Deployment: Trigger your CD pipeline (GitHub Actions or Azure Pipelines) or run local deploy scripts; review plan & apply steps.
+- Post-deploy & Cleanup: Validate deployed resources, configure monitoring/policies, and perform cleanup for test environments.
 
-How to push to GitHub (local commands)
+Features & UX notes
 
-I cannot create or push a remote repository from here. Use one of the methods below on your machine.
+- Per-card gating: many pages require a confirmation checkbox before allowing you to continue (this prevents accidental navigation).
+- Prism.js integration: code blocks use an okaidia (dark) theme and a copy-to-clipboard button.
+- Scenario downloads: Phase 2 attempts to fetch raw `.tfvars` examples from upstream repositories; however, direct client fetches can be blocked by CORS.
+	For reliable retrieval, add a small server-side proxy endpoint (for example `/proxy/raw?url=`) that fetches remote raw files server-side and returns them to the browser.
+- Finish page: the app now includes a `/finish` page that summarizes what the wizard covered and provides a downloadable text summary.
 
-Option B — use GitHub CLI (if installed)
+Persisted choices & summary
+
+- The UI uses localStorage for lightweight persistence of a few selections (for example: `phase2_flow`, `phase2_scenario`, `phase3_deployTarget`).
+- The `/finish` page reads those keys (if present) to personalize the experience. If you prefer server-side state, we can add Flask session storage or a small backend API.
+
+How to push to GitHub from your machine
+
+If you prefer using the GitHub CLI (recommended for convenience):
 
 ```bash
-gh repo create soaand01/<repo> --public --source=. --remote=origin --push
+gh repo create soaand01/alzWizard --public --source=. --remote=origin --push
 ```
 
-Optional next steps I can implement for you
+Notes about this repository
 
-- Add a small server-side proxy route to remove CORS issues when fetching raw `.tfvars` files.
-- Extract the Create/Edit modal into a shared Jinja2 partial and reuse it across the Terraform flow pages.
-- Add a GitHub Actions workflow to run linters or unit tests on PRs.
+- This repository is already created on GitHub at: https://github.com/soaand01/alzWizard
+- I committed and pushed recent changes (finish page, README updates, and template edits) to `origin/main`.
+
+Recommendations / next improvements I can implement
+
+- Add a server-side proxy endpoint (`/proxy/raw`) to avoid CORS issues when fetching raw `.tfvars` from upstream repos.
+- Persist user selections server-side (Flask sessions or a small API) if you want multi-device continuity.
+- Extract shared UI components (Create/Edit modal) into Jinja2 partials to reduce duplication.
+- Add a GitHub Actions workflow to run linters and smoke tests on push/PR.
 
 License
 
-----
+Add a `LICENSE` file (MIT recommended) if you plan to open-source this repository publicly.
 
-Add a `LICENSE` file (MIT recommended) if you want to open-source this repository.
-
-If you want me to attempt creating the remote repo and pushing from here, tell me and provide explicit consent and the mechanism (e.g., GitHub CLI + authenticated environment or a personal access token). Do not post secrets in chat unless you truly intend to provide them securely.
+If you'd like any of the recommended improvements implemented now, tell me which one and I'll apply it and push the change.
