@@ -53,5 +53,10 @@ def phase2_terraform_github():
 def phase3():
     return render_template('phases/phase3.html')
 
+
+@app.route('/finish')
+def finish():
+    return render_template('finish.html')
+
 if __name__ == '__main__':
     app.run(debug=True)

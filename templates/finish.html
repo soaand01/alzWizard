@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}{% include 'navmenu.html' %}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+  <div class="card w-100 shadow-lg" style="max-width:900px;">
+    <div class="card-body">
+      <h2 class="card-title mb-2">Congratulations!</h2>
+  <p class="lead mb-3">You've reached the end of the ALZ Wizard. Below is a concise summary of what you just completed and how each phase guided you — keep it as a quick reference or download it for later.</p>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Overview of the Wizard</h5>
+          <p class="mb-2">This wizard guided you through the ALZ (Azure Landing Zones) bootstrap and deployment workflow. It was divided into phases — each phase helped you complete a set of tasks to prepare, configure, and deploy your landing zone.</p>
+
+          <div class="list-group list-group-flush">
+            <div class="list-group-item">
+              <h6 class="mb-1">Phase 0 — Planning</h6>
+              <p class="mb-0 small text-muted">You collected your requirements and decisions — landing zone scope, subscriptions, naming conventions, and governance constraints — so you were ready to bootstrap.</p>
+            </div>
+
+            <div class="list-group-item">
+              <h6 class="mb-1">Phase 1 — Prepare & Bootstrap</h6>
+              <p class="mb-0 small text-muted">You configured your accounts, assigned required roles, set up subscriptions, and ran the ALZ Accelerator bootstrap. You selected your Version Control System, created your bootstrap repository, and generated starter infrastructure and input files.</p>
+            </div>
+
+            <div class="list-group-item">
+              <h6 class="mb-1">Phase 2 — Inputs & Bootstrapping Flows</h6>
+              <p class="mb-0 small text-muted">You chose a bootstrap flow (Azure DevOps + Terraform or GitHub + Terraform), downloaded or edited starter input files, and selected platform scenarios (.tfvars) to tailor the configuration to your environment and topology.</p>
+            </div>
+
+            <div class="list-group-item">
+              <h6 class="mb-1">Phase 3 — Deployment</h6>
+              <p class="mb-0 small text-muted">You triggered your continuous delivery pipeline (GitHub Actions or Azure Pipelines) or prepared local deploy scripts. You reviewed plan & apply steps and approved any required apply stages.</p>
+            </div>
+
+            <div class="list-group-item">
+              <h6 class="mb-1">Post-deploy & Cleanup</h6>
+              <p class="mb-0 small text-muted">After deployment, you can validate your resources, configure monitoring and policies, and follow cleanup guidance if you need to tear down test environments.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3 d-flex gap-2">
+        <a href="/" class="btn btn-outline-secondary">Home</a>
+        <a id="downloadSummary" class="btn btn-primary">Download summary</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Static descriptive summary of each phase. The Download button exports this human-readable text.
+(function(){
+  var summaryText = [];
+  summaryText.push('ALZ Wizard — Phase summary');
+  summaryText.push('');
+  summaryText.push('Phase 0 — Planning: Collect your requirements and decisions — landing zone scope, subscriptions, naming conventions, and governance constraints.');
+  summaryText.push('Phase 1 — Prepare & Bootstrap: Configure your accounts, assign roles, set up subscriptions, choose your VCS, create your bootstrap repo, and run the bootstrap to generate starter inputs.');
+  summaryText.push('Phase 2 — Inputs & Bootstrapping Flows: Select your bootstrap flow (Azure DevOps + Terraform or GitHub + Terraform), download or edit starter inputs, and pick platform scenarios (.tfvars) to tailor the configuration.');
+  summaryText.push('Phase 3 — Deployment: Trigger your CD pipeline (GitHub Actions or Azure Pipelines) or run local deploy scripts. Review the plan & apply steps and approve as required.');
+  summaryText.push('Post-deploy & Cleanup: Validate your deployed resources, configure monitoring/policies, and follow cleanup guidance for test environments.');
+  summaryText.push('');
+  summaryText.push('Congratulations — you have completed the ALZ Wizard! Use the downloaded summary as a reference for your next steps.');
+
+  var btn = document.getElementById('downloadSummary');
+  if (!btn) return;
+  btn.addEventListener('click', function(){
+    var blob = new Blob([summaryText.join('\n')], { type: 'text/plain' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'alz-wizard-phases-summary.txt';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 1500);
+  });
+})();
+</script>
+{% endblock %}
